@@ -287,7 +287,7 @@ $('#hub-search-results input[type="text"]').on("focusout", function(event) {
               $('header[class*="rm-Header"]:nth-child(1)').append(menuHeader);
               $('[class*="Header-top"]').css('border-bottom', '1px solid rgb(229, 229, 229)');
           } else if($('#LandingPage').length != 0) {
-               //$('.rm-Header-top + div').append(menuHeader);
+              //$('.rm-Header-top + div').append(menuHeader);
             	$('header[class*="rm-Header"]:nth-child(1)').append(menuHeader);
               $('[class*="Header-top"]').css('border-bottom', '1px solid rgb(229, 229, 229)');
           } else if($('[class*="LandingMenuContainer"]').length === 0) { 
