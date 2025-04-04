@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Gestão de Recebedores API
   version: "1.0.0"
-  description: API para gerenciar recebedores para divisão de pagamentos. Permite criar, buscar, editar, listar e excluir recebedores.
+  description: API para gerenciar recebedores para divisão de pagamentos.
 
 servers:
   - url: https://api.pagseguro.com
@@ -20,57 +20,55 @@ components:
   schemas:
     Account:
       type: object
-      description: Dados da conta do recebedor vinculado ao parceiro.
+      description: Conta do recebedor vinculado ao parceiro.
       properties:
         id:
           type: string
-          description: "Identificador da conta do recebedor (ACCOUNT_ID). Obrigatório, não nulo, vazio ou em branco (ex.: ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
-          example: ACCO_123e4567-e89b-12d3-a456-426614174000
+          description: "Identificador da conta (ACCOUNT_ID no formato ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
+          examples: ["ACCO_123e4567-e89b-12d3-a456-426614174000"]
         alias:
           type: string
-          description: Alias para identificação da conta. Obrigatório, não nulo, vazio ou em branco, com no máximo 100 caracteres.
+          description: Identificação da conta (máx. 100 caracteres).
           maxLength: 100
-          example: Receiver Account Alias
+          examples: ["Receiver Account Alias"]
       required:
         - id
         - alias
 
     Channel:
       type: object
-      description: Dados do canal associado ao recebedor.
+      description: Canal associado ao recebedor.
       properties:
         type:
           type: string
-          description: Tipo de canal. Obrigatório, não nulo, vazio ou em branco. Aceita apenas os valores "DEVICE" ou "PLATFORM_VTEX".
+          description: Tipo de canal ("DEVICE" ou "PLATFORM_VTEX").
           enum:
             - DEVICE
             - PLATFORM_VTEX
-          example: DEVICE
+          examples: ["DEVICE"]
         role:
-          type: string
-          description: Papel do canal (apenas o valor "SELLER"). Obrigatório com o valor "SELLER" quando type for "PLATFORM_VTEX". Não precisa ser encaminhado ou se for deve obrigatoriamente ter o valor nulo quando type for "DEVICE".
-          nullable: true
+          type: [string, "null"]
+          description: Papel do canal. Obrigatório com valor "SELLER" quando type="PLATFORM_VTEX". Nulo quando type="DEVICE".
           enum:
             - SELLER
-          example: SELLER
+          examples: ["SELLER"]
         external_id:
-          type: string
-          description: ID externo utilizado no canal. Obrigatório com um valor diferente de vazio ou em branco, podendo ter até 100 caracteres quando type for "PLATFORM_VTEX". Não precisa ser encaminhado ou se for deve obrigatoriamente ter o valor nulo quando type for "DEVICE".
-          nullable: true
+          type: [string, "null"]
+          description: ID externo no canal. Obrigatório para type="PLATFORM_VTEX" (máx. 100 caracteres). Nulo quando type="DEVICE".
           maxLength: 100
-          example: external_id_123
+          examples: ["external_id_123"]
       required:
         - type
 
     ReceiverRequest:
       type: object
-      description: Request body para criar ou editar um recebedor.
+      description: Request para criar/editar recebedor.
       properties:
         account:
           $ref: '#/components/schemas/Account'
         channels:
           type: array
-          description: Lista de canais associados ao recebedor. Deve conter no mínimo 1 e no máximo 20 itens.
+          description: Canais associados (1-20 itens).
           items:
             $ref: '#/components/schemas/Channel'
           minItems: 1
@@ -81,17 +79,17 @@ components:
 
     ReceiverResponse:
       type: object
-      description: Resposta da API contendo os dados do recebedor.
+      description: Resposta com dados do recebedor.
       properties:
         id:
           type: string
-          description: Identificador da configuração de recebedor criada com o formato “SPCR_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX".
-          example: SPCR_123e4567-e89b-12d3-a456-426614174000
+          description: Identificador da configuração (formato SPCR_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX).
+          examples: ["SPCR_123e4567-e89b-12d3-a456-426614174000"]
         account:
           $ref: '#/components/schemas/Account'
         channels:
           type: array
-          description: Lista de canais cadastrados. O campo type estará presente em todos os objetos e os campos role e external_id somente existirão nos objetos com type igual a “PLATFORM_VTEX”
+          description: Canais cadastrados. Campos role/external_id presentes apenas quando type="PLATFORM_VTEX"
           items:
             $ref: '#/components/schemas/Channel'
         status:
@@ -100,18 +98,17 @@ components:
           enum:
             - ACTIVE
             - INACTIVE
-          example: ACTIVE
+          examples: ["ACTIVE"]
         created_at:
           type: string
           format: date-time
-          description: "Data de criação da configuração de recebedor no formato timestamp com timezone (ex.: 2025-03-21T14:28:00.000-03:00)."
-          example: "2025-03-21T14:28:00.000-03:00"
+          description: "Data de criação (formato timestamp com timezone)."
+          examples: ["2025-03-21T14:28:00.000-03:00"]
         updated_at:
-          type: string
+          type: [string, "null"]
           format: date-time
-          nullable: true
-          description: Data da última edição da configuração de recebedor no formato timestamp com timezone, podendo não ser retornado se o registro ainda não teve edição.
-          example: "2025-03-22T10:00:00.000-03:00"
+          description: Data da última edição (opcional se não houve edição).
+          examples: ["2025-03-22T10:00:00.000-03:00"]
         links:
           type: array
           description: Relação de objetos hateoas
@@ -126,15 +123,15 @@ components:
                   - SPLIT_CONFIGURATION_RECEIVERS.LIST
                   - SPLIT_CONFIGURATION_RECEIVERS.EDIT
                   - SPLIT_CONFIGURATION_RECEIVERS.DELETE
-                example: SELF
+                examples: ["SELF"]
               href:
                 type: string
                 description: Link para o relacionamento.
-                example: URL/PATH/ACCOUNT_ID
+                examples: ["URL/PATH/ACCOUNT_ID"]
               media:
                 type: string
-                description: Formato de retorno dos dados do relacionamento.
-                example: application/json
+                description: Formato de retorno dos dados.
+                examples: ["application/json"]
               type:
                 type: string
                 description: Tipo do relacionamento.
@@ -143,62 +140,62 @@ components:
                   - POST
                   - PUT
                   - DELETE
-                example: GET
+                examples: ["GET"]
 
     ErrorResponse:
       type: object
-      description: Resposta de erro genérica.
+      description: Resposta de erro.
       properties:
         error_messages:
           type: array
-          description: Lista de erros encontrados na requisição.
+          description: Lista de erros.
           items:
             type: object
             properties:
               error:
                 type: string
                 description: Código do erro.
-                example: method_argument_not_valid
+                examples: ["method_argument_not_valid"]
               description:
                 type: string
                 description: Descrição do erro.
-                example: Account alias must have between 1 and 100 characters
+                examples: ["Account alias must have between 1 and 100 characters"]
               parameter_name:
                 type: string
-                description: Identificação do parâmetro que gerou o erro.
-                example: account.alias
+                description: Parâmetro que gerou o erro.
+                examples: ["account.alias"]
 
     ReceiverListResponse:
       type: object
-      description: Resposta da API para listar recebedores.
+      description: Resposta para listar recebedores.
       properties:
         receivers:
           type: array
-          description: Lista de configurações de recebedores encontradas na busca.
+          description: Lista de configurações encontradas.
           items:
             $ref: '#/components/schemas/ReceiverResponse'
         pagination:
           type: object
-          description: Informações sobre a paginação da resposta da pesquisa realizada.
+          description: Informações de paginação.
           properties:
             total:
               type: integer
-              description: Número total de configurações de recebedor encontradas.
-              example: 100
+              description: Número total de configurações.
+              examples: [100]
             offset:
               type: integer
-              description: Quantidade de páginas de resposta deslocadas.
-              example: 0
+              description: Páginas deslocadas.
+              examples: [0]
             limit:
               type: integer
-              description: Quantidade de registros por página.
-              example: 10
+              description: Registros por página.
+              examples: [10]
 
 paths:
   /split-configuration/receivers:
     post:
       summary: Cadastrar Recebedor
-      description: Endpoint utilizado para cadastrar um novo recebedor.
+      description: Cadastra um novo recebedor.
       security:
         - BearerAuth: []
       requestBody:
@@ -209,7 +206,7 @@ paths:
               $ref: '#/components/schemas/ReceiverRequest'
       responses:
         '201':
-          description: Recebedor criado com sucesso.
+          description: Criado com sucesso.
           content:
             application/json:
               schema:
@@ -225,7 +222,7 @@ paths:
 
     get:
       summary: Listar Recebedores
-      description: Endpoint utilizado para listar todos os recebedores vinculados ao parceiro.
+      description: Lista recebedores vinculados ao parceiro.
       security:
         - BearerAuth: []
       parameters:
@@ -234,23 +231,23 @@ paths:
           schema:
             type: integer
             minimum: 1
-          description: Número máximo de registros retornados na resposta. Deve ser um número inteiro, positivo e maior do que zero.
+          description: Máximo de registros na resposta (inteiro positivo > 0).
         - in: query
           name: offset
           schema:
             type: integer
             minimum: 0
-          description: Quantidade de páginas que devem ser avançadas para retornar os registros. Deve ser um número inteiro, positivo e maior ou igual a zero.
+          description: Páginas a avançar (inteiro positivo ≥ 0).
         - in: query
           name: sort
           schema:
             type: string
-          description: "Tipo de orientação (crescente ou decrescente) e o campo que deve ser utilizado para ordenar a resposta. Deve iniciar com “-“ para orientação decrescente e após ter o nome do campo utilizado (ex.: -alias)."
+          description: "Ordenação: -campo (decrescente) ou campo (crescente)."
         - in: query
           name: alias
           schema:
             type: string
-          description: Pesquisa por um dado no campo alias.
+          description: Filtro por alias.
         - in: query
           name: channel_type
           schema:
@@ -258,15 +255,15 @@ paths:
             enum:
               - DEVICE
               - PLATFORM_VTEX
-          description: Filtra por um tipo de canal, devendo ser "DEVICE" ou "PLATFORM_VTEX".
+          description: Filtro por tipo de canal.
         - in: query
           name: channel_external_id
           schema:
             type: string
-          description: Permite pesquisar por um external id.
+          description: Filtro por external id.
       responses:
         '200':
-          description: Lista de recebedores retornada com sucesso.
+          description: Lista retornada com sucesso.
           content:
             application/json:
               schema:
@@ -283,7 +280,7 @@ paths:
   /split-configuration/receivers/{account_id}:
     get:
       summary: Buscar Recebedor
-      description: Endpoint utilizado para buscar um recebedor específico.
+      description: Busca um recebedor específico.
       security:
         - BearerAuth: []
       parameters:
@@ -292,10 +289,10 @@ paths:
           required: true
           schema:
             type: string
-          description: "ID da conta do recebedor (ACCOUNT_ID). Obrigatório, não nulo, vazio ou em branco (ex.: ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
+          description: "ID da conta (ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
       responses:
         '200':
-          description: Recebedor encontrado com sucesso.
+          description: Recebedor encontrado.
           content:
             application/json:
               schema:
@@ -314,10 +311,10 @@ paths:
                       properties:
                         error:
                           type: string
-                          example: receiver_not_found
+                          examples: ["receiver_not_found"]
                         description:
                           type: string
-                          example: Receiver not found with id ACCOUNT_ID
+                          examples: ["Receiver not found with id ACCOUNT_ID"]
         '401':
           description: Unauthorized.
           content:
@@ -327,7 +324,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Unauthorized
+                    examples: ["Unauthorized"]
         '403':
           description: Forbidden.
           content:
@@ -337,7 +334,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Forbidden
+                    examples: ["Forbidden"]
         '500':
           description: Internal Server Error.
           content:
@@ -352,16 +349,16 @@ paths:
                       properties:
                         error:
                           type: string
-                          example: internal_server_error
+                          examples: ["internal_server_error"]
                         description:
                           type: string
-                          example: An internal error happened
+                          examples: ["An internal error happened"]
       tags:
         - Recebedores
 
     put:
       summary: Editar Recebedor
-      description: Endpoint utilizado para editar as informações de um recebedor.
+      description: Edita as informações de um recebedor.
       security:
         - BearerAuth: []
       parameters:
@@ -370,7 +367,7 @@ paths:
           required: true
           schema:
             type: string
-          description: "ID da conta do recebedor (ACCOUNT_ID). Obrigatório, não nulo, vazio ou em branco (ex.: ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
+          description: "ID da conta (ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
       requestBody:
         required: true
         content:
@@ -380,18 +377,18 @@ paths:
               properties:
                 account:
                   type: object
-                  description: Campo não obrigatório, devendo ser utilizado apenas quando se deseja atualizar o alias.
+                  description: Opcional, apenas para atualizar o alias.
                   properties:
                     alias:
                       type: string
-                      description: Alias para identificação da conta. Obrigatório, não nulo, vazio ou em branco, com no máximo 100 caracteres.
+                      description: Novo alias (máx. 100 caracteres).
                       maxLength: 100
-                      example: Receiver Account Alias
+                      examples: ["Receiver Account Alias"]
                   required:
                     - alias
                 channels:
                   type: array
-                  description: Campo não obrigatório, devendo ser utilizado apenas quando se deseja atualizar a lista de canais. Deve ser não nulo ou vazio e conter entre 1 e 20 channels. Deve representar a lista final de canais do recebedor.
+                  description: Opcional, para atualizar canais (1-20 itens). Representa lista final.
                   items:
                     $ref: '#/components/schemas/Channel'
                   minItems: 1
@@ -423,16 +420,16 @@ paths:
                       properties:
                         error:
                           type: string
-                          example: receiver_not_found
+                          examples: ["receiver_not_found"]
                         description:
                           type: string
-                          example: Receiver not found with id ACCOUNT_ID
+                          examples: ["Receiver not found with id ACCOUNT_ID"]
       tags:
         - Recebedores
 
     delete:
       summary: Excluir Recebedor
-      description: Endpoint utilizado para excluir um recebedor específico.
+      description: Exclui um recebedor específico.
       security:
         - BearerAuth: []
       parameters:
@@ -441,7 +438,7 @@ paths:
           required: true
           schema:
             type: string
-          description: "ID da conta do recebedor (ACCOUNT_ID). Obrigatório, não nulo, vazio ou em branco (ex.: ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
+          description: "ID da conta (ACCO_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)."
       responses:
         '204':
           description: Recebedor excluído com sucesso. No content.
@@ -459,10 +456,10 @@ paths:
                       properties:
                         error:
                           type: string
-                          example: receiver_not_found
+                          examples: ["receiver_not_found"]
                         description:
                           type: string
-                          example: Receiver not found with id ACCOUNT_ID
+                          examples: ["Receiver not found with id ACCOUNT_ID"]
         '401':
           description: Unauthorized.
           content:
@@ -472,7 +469,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Unauthorized
+                    examples: ["Unauthorized"]
         '403':
           description: Forbidden.
           content:
@@ -482,7 +479,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Forbidden
+                    examples: ["Forbidden"]
         '500':
           description: Internal Server Error.
           content:
@@ -497,9 +494,9 @@ paths:
                       properties:
                         error:
                           type: string
-                          example: internal_server_error
+                          examples: ["internal_server_error"]
                         description:
                           type: string
-                          example: An internal error happened
+                          examples: ["An internal error happened"]
       tags:
         - Recebedores
